@@ -16,6 +16,12 @@
     <name>stat</name>
     <description>stat</description>
 
+    <modules>
+        <module>stat-server</module>
+        <module>stat-gateway</module>
+        <module>stat-common</module>
+    </modules>
+
     <build>
         <plugins>
             <plugin>
