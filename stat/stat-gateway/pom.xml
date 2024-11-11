@@ -13,6 +13,14 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>stat-gateway</name>
     <description>stat-gateway</description>
+    <dependencies>
+        <dependency>
+            <groupId>ru.practicum</groupId>
+            <artifactId>stat-common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
