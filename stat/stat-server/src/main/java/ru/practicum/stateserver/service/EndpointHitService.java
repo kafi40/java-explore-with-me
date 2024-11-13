@@ -14,5 +14,5 @@ public interface EndpointHitService {
 
     List<EndpointHitDtoRes> getStatsUniqueByUris(String start, String end, List<String> uris);
 
-    EndpointHitDtoRes createHits(EndpointHitDtoReq  request);
+    EndpointHitDtoRes createHits(EndpointHitDtoReq request);
 }

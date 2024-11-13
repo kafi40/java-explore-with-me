@@ -1,5 +1,6 @@
 package ru.practicum.stateserver.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ public class EndpointHitController {
         log.info("Server stat (controller): Get stats with param start={}, end={}, uris={}, unique={}", start, end, uris, unique);
         if ((uris != null && !uris.isEmpty()) && unique) {
             return endpointHitService.getStatsUniqueByUris(start, end, uris);
-        } else if (end != null && !end.isEmpty()) {
+        } else if (uris != null && !uris.isEmpty()) {
             return endpointHitService.getStatsByUris(start, end, uris);
         } else if (unique) {
             return endpointHitService.getStatsUnique(start, end);

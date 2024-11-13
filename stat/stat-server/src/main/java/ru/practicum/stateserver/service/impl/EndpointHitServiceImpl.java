@@ -9,6 +9,7 @@ import ru.practicum.statcommon.dto.EndpointHitDtoRes;
 import ru.practicum.stateserver.repository.EndpointHitRepository;
 import ru.practicum.stateserver.service.EndpointHitService;
 import ru.practicum.stateserver.service.entity.EndpointHit;
+import ru.practicum.stateserver.service.entity.EndpointHitShort;
 import ru.practicum.stateserver.service.mapper.EndpointHitMapper;
 
 import java.sql.Timestamp;
@@ -19,16 +20,16 @@ import java.util.List;
 @Slf4j
 public class EndpointHitServiceImpl implements EndpointHitService {
     private final EndpointHitRepository endpointHitRepository;
-    private final EndpointHitMapper endpointHitMapper;
 
     @Override
     public List<EndpointHitDtoRes> getStats(String start, String end) {
         log.info("Server stat (service): Try getStats()");
 
-        List<EndpointHit> endpointHits = endpointHitRepository.findAll();
+        List<EndpointHit> endpointHits =
+                endpointHitRepository.findAllByCreatedAtBetween(Timestamp.valueOf(start), Timestamp.valueOf(end));
 
         log.info("Server stat (service): Finished getStats()");
-        return endpointHitMapper.toDtoList(endpointHits);
+        return EndpointHitMapper.toDtoList(endpointHits);
     }
 
     @Override
@@ -39,7 +40,7 @@ public class EndpointHitServiceImpl implements EndpointHitService {
         List<EndpointHit> endpointHits = endpointHitRepository.findAllByCreatedAtBetweenAndUriInIgnoreCase(fStart, fEnd, uris);
 
         log.info("Server stat (service): Finished getStatsByUris()");
-        return endpointHitMapper.toDtoList(endpointHits);
+        return EndpointHitMapper.toDtoList(endpointHits);
     }
 
     @Override
@@ -51,7 +52,7 @@ public class EndpointHitServiceImpl implements EndpointHitService {
         List<EndpointHit> endpointHits = endpointHitRepository.findAllByCreatedAtBetweenAndUniqueIp(fStart, fEnd);
 
         log.info("Server stat (service): Finished getStatsUnique()");
-        return endpointHitMapper.toDtoList(endpointHits);
+        return EndpointHitMapper.toDtoList(endpointHits);
     }
 
     @Override
@@ -63,7 +64,7 @@ public class EndpointHitServiceImpl implements EndpointHitService {
         List<EndpointHit> endpointHits = endpointHitRepository.findAllByCreatedAtBetweenAndUriInAndUniqueIp(fStart, fEnd, uris);
 
         log.info("Server stat (service): Finished getStatsUniqueByUris()");
-        return endpointHitMapper.toDtoList(endpointHits);
+        return EndpointHitMapper.toDtoList(endpointHits);
     }
 
     @Override
@@ -71,10 +72,10 @@ public class EndpointHitServiceImpl implements EndpointHitService {
     public EndpointHitDtoRes createHits(EndpointHitDtoReq request) {
         log.info("Server stat (service): Try createHits()");
 
-        EndpointHit endpointHit = endpointHitMapper.fromDto(request);
+        EndpointHit endpointHit = EndpointHitMapper.fromDto(request);
         endpointHit = endpointHitRepository.save(endpointHit);
 
         log.info("Server stat (service): Finished createHits()");
-        return endpointHitMapper.toDto(endpointHit);
+        return EndpointHitMapper.toDto(endpointHit);
     }
 }

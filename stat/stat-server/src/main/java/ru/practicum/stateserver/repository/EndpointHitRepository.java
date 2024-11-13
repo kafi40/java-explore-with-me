@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.practicum.stateserver.service.entity.EndpointHit;
+import ru.practicum.stateserver.service.entity.EndpointHitShort;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -14,8 +15,8 @@ public interface EndpointHitRepository extends JpaRepository<EndpointHit, Long> 
 
     List<EndpointHit> findAllByCreatedAtBetweenAndUriInIgnoreCase(Timestamp start, Timestamp end, List<String> uris);
 
-    @Query("SELECT DISTINCT e.uri, e.ip FROM EndpointHit AS e " +
-            "WHERE (e.createdAt BETWEEN ?1 AND ?2)")
+    @Query("SELECT DISTINCT e.uri, e.ip, e.app FROM EndpointHit AS e " +
+            "WHERE e.createdAt BETWEEN ?1 AND ?2")
     List<EndpointHit> findAllByCreatedAtBetweenAndUniqueIp(Timestamp start, Timestamp end);
 
     @Query("SELECT DISTINCT e.uri, e.ip FROM EndpointHit AS e " +
