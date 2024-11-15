@@ -16,7 +16,7 @@ public class EndpointHitDtoReq {
     @Size(max = 20, message = "Превышена длина IP")
     @NotBlank(message = "Должен быть указан IP")
     private String ip;
-    @Pattern(regexp = "yyyy-MM-dd HH:mm:ss", message = "Некорректный формат даты и времени")
+    @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$", message = "Некорректный формат даты и времени")
     @NotBlank(message = "Должна быть указана дата и время")
     private String timestamp;
 }
