@@ -9,16 +9,15 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>stat</artifactId>
+    <artifactId>main</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>stat</name>
-    <description>stat</description>
+    <name>main</name>
+    <description>main</description>
 
     <modules>
-        <module>stat-server</module>
-        <module>stat-gateway</module>
-        <module>stat-common</module>
+        <module>main-server</module>
+        <module>main-gateway</module>
     </modules>
 
 </project>

@@ -19,6 +19,7 @@
 
 	<modules>
 		<module>stat</module>
+		<module>main</module>
 	</modules>
 
 	<properties>
