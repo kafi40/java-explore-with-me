@@ -13,6 +13,8 @@ import ru.practicum.stateserver.service.EndpointHitService;
 import ru.practicum.stateserver.service.entity.EndpointHit;
 import ru.practicum.stateserver.service.mapper.EndpointHitMapper;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -27,8 +29,10 @@ public class EndpointHitServiceImpl implements EndpointHitService {
     public List<ViewStats> getStats(String start, String end) {
         log.info("Server stat (service): Try getStats()");
 
-        List<ShortEndpointHit> endpointHits =
-                endpointHitRepository.findAllByCreatedAtBetween(Timestamp.valueOf(start), Timestamp.valueOf(end));
+        List<ShortEndpointHit> endpointHits = endpointHitRepository.findAllByCreatedAtBetween(
+                toTimestamp(start),
+                toTimestamp(end)
+        );
 
         log.info("Server stat (service): Finished getStats()");
         return endpointHitMapper.toDtoList(endpointHits);
@@ -37,9 +41,11 @@ public class EndpointHitServiceImpl implements EndpointHitService {
     @Override
     public List<ViewStats> getStatsByUris(String start, String end, List<String> uris) {
         log.info("Server stat (service): Try getStatsByUris()");
-        Timestamp fStart = Timestamp.valueOf(start);
-        Timestamp fEnd = Timestamp.valueOf(end);
-        List<ShortEndpointHit> endpointHits = endpointHitRepository.findAllByCreatedAtBetweenAndUriInIgnoreCase(fStart, fEnd, uris);
+        List<ShortEndpointHit> endpointHits = endpointHitRepository.findAllByCreatedAtBetweenAndUriInIgnoreCase(
+                        toTimestamp(start),
+                        toTimestamp(end),
+                        uris
+        );
 
         log.info("Server stat (service): Finished getStatsByUris()");
         return endpointHitMapper.toDtoList(endpointHits);
@@ -48,10 +54,10 @@ public class EndpointHitServiceImpl implements EndpointHitService {
     @Override
     public List<ViewStats> getStatsUnique(String start, String end) {
         log.info("Server stat (service): Try getStatsUnique()");
-
-        Timestamp fStart = Timestamp.valueOf(start);
-        Timestamp fEnd = Timestamp.valueOf(end);
-        List<NativeEndpointHit> endpointHits = endpointHitRepository.findAllByCreatedAtBetweenAndUniqueIp(fStart, fEnd);
+        List<NativeEndpointHit> endpointHits = endpointHitRepository.findAllByCreatedAtBetweenAndUniqueIp(
+                toTimestamp(start),
+                toTimestamp(end)
+        );
 
         log.info("Server stat (service): Finished getStatsUnique()");
         return endpointHitMapper.toDtoListNative(endpointHits);
@@ -60,10 +66,11 @@ public class EndpointHitServiceImpl implements EndpointHitService {
     @Override
     public List<ViewStats> getStatsUniqueByUris(String start, String end, List<String> uris) {
         log.info("Server stat (service): Try getStatsUniqueByUris()");
-
-        Timestamp fStart = Timestamp.valueOf(start);
-        Timestamp fEnd = Timestamp.valueOf(end);
-        List<NativeEndpointHit> endpointHits = endpointHitRepository.findAllByCreatedAtBetweenAndUriInAndUniqueIp(fStart, fEnd, uris);
+        List<NativeEndpointHit> endpointHits = endpointHitRepository.findAllByCreatedAtBetweenAndUriInAndUniqueIp(
+                toTimestamp(start),
+                toTimestamp(end),
+                uris
+        );
 
         log.info("Server stat (service): Finished getStatsUniqueByUris()");
         return endpointHitMapper.toDtoListNative(endpointHits);
@@ -79,5 +86,9 @@ public class EndpointHitServiceImpl implements EndpointHitService {
 
         log.info("Server stat (service): Finished createHits()");
         return endpointHitMapper.toDto(endpointHit);
+    }
+
+    private Timestamp toTimestamp(String dateTime) {
+        return Timestamp.valueOf(URLDecoder.decode(dateTime, StandardCharsets.UTF_8));
     }
 }
