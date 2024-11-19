@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.practicum.statcommon.dto.EndpointHitDtoReq;
-import ru.practicum.statcommon.dto.EndpointHitDtoRes;
+import ru.practicum.statcommon.dto.ViewStats;
 import ru.practicum.statgateway.client.EndpointHitClient;
 
 import java.net.URI;
@@ -25,7 +25,7 @@ public class EndpointHitClientImpl implements EndpointHitClient {
     private final RestClient restClient = RestClient.create();
 
     @Override
-    public List<EndpointHitDtoRes> get(HttpServletRequest request, Map<String, String> params, @Nullable List<String> uris) {
+    public List<ViewStats> get(HttpServletRequest request, Map<String, String> params, @Nullable List<String> uris) {
         log.info("Gateway stat (client): Try to make request by uri={}", request.getRequestURI());
 
         URI uri = UriComponentsBuilder.fromUriString(serverUrl)
@@ -36,16 +36,20 @@ public class EndpointHitClientImpl implements EndpointHitClient {
                 .queryParam("uris", uris)
                 .build()
                 .toUri();
-
-        return restClient.get()
-                .uri(uri)
-                .retrieve()
-                .body(new ParameterizedTypeReference<>() {
-                });
+        try {
+            return restClient.get()
+                    .uri(uri)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {
+                    });
+        } catch (Exception e) {
+            log.error("Gateway stat (client): Failed to access the server: {}", e.getMessage());
+            return null;
+        }
     }
 
     @Override
-    public EndpointHitDtoRes create(EndpointHitDtoReq body, HttpServletRequest request) {
+    public ViewStats create(EndpointHitDtoReq body, HttpServletRequest request) {
         log.info("Gateway stat (client): Try to make request by uri={} with body={}", request.getRequestURI(), body);
 
         URI uri = UriComponentsBuilder.fromUriString(serverUrl)
@@ -53,11 +57,16 @@ public class EndpointHitClientImpl implements EndpointHitClient {
                 .build()
                 .toUri();
 
-        return restClient.post()
-                .uri(uri)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(body)
-                .retrieve()
-                .body(EndpointHitDtoRes.class);
+        try {
+            return restClient.post()
+                    .uri(uri)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(body)
+                    .retrieve()
+                    .body(ViewStats.class);
+        } catch (Exception e) {
+            log.error("Gateway stat (client): Failed to access the server: {}", e.getMessage());
+            return null;
+        }
     }
 }

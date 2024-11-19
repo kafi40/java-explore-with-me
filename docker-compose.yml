@@ -1,14 +1,80 @@
 services:
-  stats-server:
+  stats-gateway:
+    build: stat-gateway
+    image: stat-gateway
+    container_name: state-gateway
     ports:
       - "9090:9090"
+    depends_on:
+      - stats-server
+    environment:
+      - STATS_SERVER_URL=http://server:9191
+
+  stats-server:
+    build: stat-server
+    image: stat-server
+    container_name: stat-server
+    ports:
+      - "9191:9191"
+    depends_on:
+      - stats-db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/stats
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
 
   stats-db:
     image: postgres:16.1
+    container_name: stat-postgres
+    ports:
+      - "6541:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=stats
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
 
-  ewm-service:
+  ewm-gateway:
+    build: main-gateway
+    image: main-gateway
+    container_name: main-gateway
     ports:
       - "8080:8080"
+    depends_on:
+      - ewm-service
+    environment:
+      - MAIN_SERVER_URL=http://server:8181
+
+  ewm-service:
+    build: main-server
+    image: main-server
+    container_name: main-server
+    ports:
+      - "8181:8181"
+    depends_on:
+      - ewm-db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/main
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+
 
   ewm-db:
     image: postgres:16.1
+    container_name: main-postgres
+    ports:
+      - "6541:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=main
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
+

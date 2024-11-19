@@ -11,7 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.statcommon.dto.EndpointHitDtoReq;
-import ru.practicum.statcommon.dto.EndpointHitDtoRes;
+import ru.practicum.statcommon.dto.ViewStats;
 import ru.practicum.statgateway.client.EndpointHitClient;
 import ru.practicum.statgateway.factory.ModelFactory;
 import ru.practicum.statgateway.util.Util;
@@ -36,7 +36,7 @@ public class EndpointHitControllerTest {
     private MockMvc mockMvc;
     private final String start = Util.getStart();
     private final String end =  Util.getEnd();
-    private final EndpointHitDtoRes response = ModelFactory.createEndpointHitDtoRes();
+    private final ViewStats response = ModelFactory.createEndpointHitDtoRes();
     private final Map<String, String> params = Map.of("start", start, "end", end, "unique", "false");
     private final List<String> uris = new ArrayList<>();
 

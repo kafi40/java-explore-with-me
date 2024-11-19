@@ -1,11 +1,10 @@
 package ru.practicum.stateserver.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.statcommon.dto.EndpointHitDtoReq;
-import ru.practicum.statcommon.dto.EndpointHitDtoRes;
+import ru.practicum.statcommon.dto.ViewStats;
 import ru.practicum.stateserver.service.EndpointHitService;
 
 import java.util.List;
@@ -17,7 +16,7 @@ public class EndpointHitController {
     private final EndpointHitService endpointHitService;
 
     @GetMapping("/stats")
-    public List<EndpointHitDtoRes> getStats(
+    public List<ViewStats> getStats(
             @RequestParam String start,
             @RequestParam String end,
             @RequestParam(required = false) List<String> uris,
@@ -36,7 +35,7 @@ public class EndpointHitController {
     }
 
     @PostMapping("/hit")
-    public EndpointHitDtoRes postHit(@RequestBody EndpointHitDtoReq request) {
+    public ViewStats postHit(@RequestBody EndpointHitDtoReq request) {
         log.info("Server stat (controller): Create EndpointHit={}", request);
         return endpointHitService.createHits(request);
     }

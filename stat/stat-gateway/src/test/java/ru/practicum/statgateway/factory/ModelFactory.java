@@ -1,7 +1,7 @@
 package ru.practicum.statgateway.factory;
 
 import ru.practicum.statcommon.dto.EndpointHitDtoReq;
-import ru.practicum.statcommon.dto.EndpointHitDtoRes;
+import ru.practicum.statcommon.dto.ViewStats;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -9,8 +9,8 @@ import java.time.format.DateTimeFormatter;
 public class ModelFactory {
     private static final String MAIN_SERVER = "main-server";
 
-    public static EndpointHitDtoRes createEndpointHitDtoRes() {
-        return new EndpointHitDtoRes(MAIN_SERVER, "http://localhost:9090/stats", 1);
+    public static ViewStats createEndpointHitDtoRes() {
+        return new ViewStats(MAIN_SERVER, "http://localhost:9090/stats", 1);
     }
 
     public static EndpointHitDtoReq createEndpointHitDtoReq() {

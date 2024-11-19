@@ -1,6 +1,6 @@
 package ru.practicum.statcommon.dto;
 
-public record EndpointHitDtoRes(
+public record ViewStats(
         String app,
         String uri,
         Integer hits

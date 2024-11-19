@@ -1,4 +1,4 @@
-package ru.practicum.stateserver.controller;
+package ru.practicum.stateserver.service;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -9,11 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.statcommon.dto.EndpointHitDtoReq;
-import ru.practicum.statcommon.dto.EndpointHitDtoRes;
+import ru.practicum.statcommon.dto.ViewStats;
 import ru.practicum.stateserver.factory.ModelFactory;
-import ru.practicum.stateserver.service.EndpointHitService;
-import ru.practicum.stateserver.service.entity.EndpointHit;
-import ru.practicum.stateserver.service.entity.EndpointHitShort;
+import ru.practicum.stateserver.repository.model.ShortEndpointHit;
 import ru.practicum.stateserver.util.Util;
 
 import java.sql.Timestamp;
@@ -34,7 +32,7 @@ public class EndpointHitServiceTest {
     private final String start = Util.toString(startTS);
     private final String end =  Util.toString(endTS);
     private EndpointHitDtoReq request;
-    private List<EndpointHitDtoRes> response;
+    private List<ViewStats> response;
 
     @BeforeEach
     void beforeEach() {
@@ -45,10 +43,14 @@ public class EndpointHitServiceTest {
     @Test
     void testGetStats() {
         response = endpointHitService.getStats(start, end);
-        TypedQuery<EndpointHit> query = em.createQuery(
-                "SELECT e FROM EndpointHit AS e " +
-                "WHERE e.createdAt BETWEEN :start AND :end", EndpointHit.class);
-        List<EndpointHit> endpointHits = query
+        TypedQuery<ShortEndpointHit> query = em.createQuery(
+                "SELECT new ru.practicum.stateserver.repository.model.ShortEndpointHit(e.app, e.uri, count(e.uri)) " +
+                        "FROM EndpointHit AS e " +
+                        "WHERE e.createdAt BETWEEN :start AND :end " +
+                        "GROUP BY e.uri, e.app " +
+                        "ORDER BY COUNT(e.uri) DESC", ShortEndpointHit.class);
+
+        List<ShortEndpointHit> endpointHits = query
                 .setParameter("start", startTS)
                 .setParameter("end", endTS)
                 .getResultList();
@@ -65,17 +67,23 @@ public class EndpointHitServiceTest {
         endpointHitService.createHits(request);
 
         response = endpointHitService.getStatsByUris(start, end, List.of(awaitingUri));
-        TypedQuery<EndpointHit> query = em.createQuery(
-                "SELECT e FROM EndpointHit AS e " +
-                        "WHERE e.createdAt BETWEEN :start AND :end AND e.uri IN :uris", EndpointHit.class);
-        List<EndpointHit> endpointHits = query
+
+        TypedQuery<ShortEndpointHit> query = em.createQuery(
+                "SELECT new ru.practicum.stateserver.repository.model.ShortEndpointHit(e.app, e.uri, count(e.uri)) " +
+                        "FROM EndpointHit AS e " +
+                        "WHERE e.createdAt BETWEEN :start AND :end " +
+                        "AND e.uri IN :uris " +
+                        "GROUP BY e.uri, e.app " +
+                        "ORDER BY COUNT(e.uri) DESC", ShortEndpointHit.class);
+
+        List<ShortEndpointHit> endpointHits = query
                 .setParameter("start", startTS)
                 .setParameter("end", endTS)
                 .setParameter("uris", awaitingUri)
                 .getResultList();
         assertThat(response.size(), equalTo(endpointHits.size()));
         assertThat(response.getFirst().app(), equalTo(endpointHits.getFirst().getApp()));
-        assertThat(response.getFirst().uri(), equalTo(endpointHits.getFirst().getUri()));
+        assertThat(response.getFirst().uri(), equalTo(awaitingUri));
         assertThat(response.getFirst().hits(), equalTo(1));
     }
 
@@ -83,16 +91,19 @@ public class EndpointHitServiceTest {
     void testGetStatsUnique() {
         endpointHitService.createHits(request);
 
-//        response = endpointHitService.getStatsUnique(start, end);
-        TypedQuery<EndpointHit> query = em.createQuery(
-                "SELECT DISTINCT e.uri, e.ip, e.app FROM EndpointHit AS e WHERE e.createdAt BETWEEN :start AND :end", EndpointHit.class);
-        System.out.println(query
-                .setParameter("start", startTS)
-                .setParameter("end", endTS)
-                .getResultList());
-//        assertThat(response.size(), equalTo(endpointHits.size()));
-//        assertThat(response.getFirst().app(), equalTo(endpointHits.getFirst().getApp()));
-//        assertThat(response.getFirst().uri(), equalTo(endpointHits.getFirst().getUri()));
-//        assertThat(response.getFirst().hits(), equalTo(1));
+        response = endpointHitService.getStatsUnique(start, end);
+
+        assertThat(response.getFirst().hits(), equalTo(1));
+    }
+
+    @Test
+    void testGetStatsUniqueByUris() {
+        request.setUri("http://localhost:9090/otherUri");
+        endpointHitService.createHits(request);
+        response = endpointHitService.getStatsUniqueByUris(start, end, List.of(request.getUri()));
+
+        assertThat(response.getFirst().hits(), equalTo(1));
+        assertThat(response.getFirst().uri(), equalTo(request.getUri()));
+        assertThat(response.size(), equalTo(1));
     }
 }

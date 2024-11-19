@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.statcommon.dto.EndpointHitDtoReq;
-import ru.practicum.statcommon.dto.EndpointHitDtoRes;
+import ru.practicum.statcommon.dto.ViewStats;
 import ru.practicum.statgateway.client.EndpointHitClient;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class EndpointHitController {
     private final EndpointHitClient endpointHitClient;
 
     @GetMapping("/stats")
-    public List<EndpointHitDtoRes> getStats(
+    public List<ViewStats> getStats(
             @RequestParam @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$") String start,
             @RequestParam @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$") String end,
             @RequestParam(required = false) List<String> uris,
@@ -36,7 +36,7 @@ public class EndpointHitController {
     }
 
     @PostMapping("/hit")
-    public EndpointHitDtoRes postHit(@Valid @RequestBody EndpointHitDtoReq body, HttpServletRequest request) {
+    public ViewStats postHit(@Valid @RequestBody EndpointHitDtoReq body, HttpServletRequest request) {
         log.info("Gateway stat (controller): Create EndpointHit={}", body);
         return endpointHitClient.create(body, request);
     }

@@ -7,13 +7,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.statcommon.dto.EndpointHitDtoRes;
+import ru.practicum.statcommon.dto.ViewStats;
 import ru.practicum.stateserver.factory.ModelFactory;
 import ru.practicum.stateserver.service.EndpointHitService;
 import ru.practicum.stateserver.util.Util;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -33,7 +31,7 @@ public class EndpointHitControllerTest {
     private MockMvc mockMvc;
     private final String start = Util.getStart();
     private final String end =  Util.getEnd();
-    private final EndpointHitDtoRes response = ModelFactory.createEndpointHitDtoRes();;
+    private final ViewStats response = ModelFactory.createEndpointHitDtoRes();
 
     @Test
     void testGetStats() throws Exception {

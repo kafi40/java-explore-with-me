@@ -1,41 +1,37 @@
 package ru.practicum.stateserver.service.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
 import ru.practicum.statcommon.dto.EndpointHitDtoReq;
-import ru.practicum.statcommon.dto.EndpointHitDtoRes;
+import ru.practicum.statcommon.dto.ViewStats;
+import ru.practicum.stateserver.repository.model.NativeEndpointHit;
+import ru.practicum.stateserver.repository.model.ShortEndpointHit;
 import ru.practicum.stateserver.service.entity.EndpointHit;
 
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 
-public class EndpointHitMapper {
-    public static EndpointHitDtoRes toDto(EndpointHit endpointHit) {
-        return new EndpointHitDtoRes(endpointHit.getApp(), endpointHit.getUri(), null);
-    }
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+public interface EndpointHitMapper {
+    @Mapping(target = "hits", source = "count")
+    ViewStats toDto(ShortEndpointHit shortEndpointHit);
 
-    public static List<EndpointHitDtoRes> toDtoList(List<EndpointHit> endpointHits) {
-        Map<String, EndpointHitDtoRes> views = new HashMap<>();
+    @Mapping(target = "hits", source = "count")
+    ViewStats toDto(NativeEndpointHit nativeEndpointHit);
 
-        endpointHits.forEach(e -> {
-                    if (!views.containsKey(e.getUri())) {
-                        views.put(e.getUri(), new EndpointHitDtoRes(e.getApp(), e.getUri(), 1));
-                    } else {
-                        views.put(e.getUri(), new EndpointHitDtoRes(e.getApp(), e.getUri(), views.get(e.getUri()).hits() + 1));
-                    }
-                });
+    ViewStats toDto(EndpointHit endpointHit);
 
-        return views.values().stream().toList();
-    }
+    List<ViewStats> toDtoListNative(List<NativeEndpointHit> endpointHits);
 
-    public static EndpointHit fromDto(EndpointHitDtoReq request) {
-        EndpointHit endpointHit = new EndpointHit();
-        endpointHit.setApp(request.getApp());
-        endpointHit.setUri(request.getUri());
-        endpointHit.setIp(request.getIp());
-        endpointHit.setCreatedAt(Timestamp.valueOf(request.getTimestamp()));
-        return endpointHit;
+    List<ViewStats> toDtoList(List<ShortEndpointHit> endpointHits);
+
+    @Mapping(target = "createdAt", source = "timestamp", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    EndpointHit toEntity(EndpointHitDtoReq endpointHitDtoReq);
+
+    default Timestamp toTimestamp(String createAt) {
+        return Timestamp.valueOf(LocalDateTime.parse(createAt, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
     }
 }
