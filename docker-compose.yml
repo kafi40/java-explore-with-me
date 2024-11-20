@@ -67,7 +67,7 @@ services:
     image: postgres:16.1
     container_name: main-postgres
     ports:
-      - "6542:5432"
+      - "6542:5433"
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
@@ -77,4 +77,4 @@ services:
       timeout: 5s
       interval: 5s
       retries: 10
-
+    command: -p 5433
