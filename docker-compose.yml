@@ -1,8 +1,8 @@
 services:
   stats-gateway:
-    build: stat-gateway
-    image: stat-gateway
-    container_name: state-gateway
+    build: stat/stat-gateway
+    image: stats-gateway
+    container_name: stats-gateway
     ports:
       - "9090:9090"
     depends_on:
@@ -11,9 +11,9 @@ services:
       - STATS_SERVER_URL=http://server:9191
 
   stats-server:
-    build: stat-server
-    image: stat-server
-    container_name: stat-server
+    build: stat/stat-server
+    image: stats-server
+    container_name: stats-server
     ports:
       - "9191:9191"
     depends_on:
@@ -39,9 +39,9 @@ services:
       retries: 10
 
   ewm-gateway:
-    build: main-gateway
-    image: main-gateway
-    container_name: main-gateway
+    build: main/main-gateway
+    image: ewm-gateway
+    container_name: ewm-gateway
     ports:
       - "8080:8080"
     depends_on:
@@ -50,9 +50,9 @@ services:
       - MAIN_SERVER_URL=http://server:8181
 
   ewm-service:
-    build: main-server
-    image: main-server
-    container_name: main-server
+    build: main/main-server
+    image: ewm-service
+    container_name: ewm-service
     ports:
       - "8181:8181"
     depends_on:
@@ -67,7 +67,7 @@ services:
     image: postgres:16.1
     container_name: main-postgres
     ports:
-      - "6541:5432"
+      - "6542:5432"
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
