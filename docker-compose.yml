@@ -8,14 +8,14 @@ services:
     depends_on:
       - stats-server
     environment:
-      - STATS_SERVER_URL=http://stats-server:9191
+      - STATS_SERVER_URL=http://stats-server:7070
 
   stats-server:
     build: stat/stat-server
     image: stats-server
     container_name: stats-server
     ports:
-      - "9191:9191"
+      - "7070:7070"
     depends_on:
       - stats-db
     environment:
