@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -22,7 +23,7 @@ import java.util.Map;
 public class EndpointHitClientImpl implements EndpointHitClient {
     @Value("${stat-server.url}")
     private String serverUrl;
-    private final RestClient restClient = RestClient.create();
+    private final RestClient restClient = RestClient.create(serverUrl);
 
     @Override
     public List<ViewStats> get(HttpServletRequest request, Map<String, String> params, @Nullable List<String> uris) {
@@ -60,7 +61,8 @@ public class EndpointHitClientImpl implements EndpointHitClient {
         try {
             return restClient.post()
                     .uri(uri)
-                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders -> httpHeaders.setContentType(MediaType.APPLICATION_JSON))
+                    .headers(httpHeaders -> httpHeaders.setAccept(List.of(MediaType.APPLICATION_JSON)))
                     .body(body)
                     .retrieve()
                     .body(ViewStats.class);
