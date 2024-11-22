@@ -1,4 +1,4 @@
-FROM amazoncorretto:21
+FROM eclipse-temurin:21-jre-jammy
 LABEL authors="fikalinichev"
 VOLUME /tmp
 ARG JAR_FILE=target/*.jar

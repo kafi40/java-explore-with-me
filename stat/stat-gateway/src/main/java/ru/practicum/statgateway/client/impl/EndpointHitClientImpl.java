@@ -20,15 +20,16 @@ import java.util.Map;
 @Service
 @Slf4j
 public class EndpointHitClientImpl implements EndpointHitClient {
-    @Value("${stat-server.url}")
+    @Value("${stats-server.url}")
     private String serverUrl;
-    private final RestClient restClient = RestClient.create();
+    private final RestClient restClient = RestClient.create(serverUrl);
 
     @Override
     public List<ViewStats> get(HttpServletRequest request, Map<String, String> params, @Nullable List<String> uris) {
         log.info("Gateway stat (client): Try to make request by uri={}", request.getRequestURI());
 
-        URI uri = UriComponentsBuilder.fromUriString(serverUrl)
+        URI uri = UriComponentsBuilder
+                .fromUriString(serverUrl)
                 .path(request.getRequestURI())
                 .queryParam("start", params.get("start"))
                 .queryParam("end", params.get("end"))
@@ -60,7 +61,8 @@ public class EndpointHitClientImpl implements EndpointHitClient {
         try {
             return restClient.post()
                     .uri(uri)
-                    .contentType(MediaType.APPLICATION_JSON)
+                    .headers(httpHeaders -> httpHeaders.setContentType(MediaType.APPLICATION_JSON))
+                    .headers(httpHeaders -> httpHeaders.setAccept(List.of(MediaType.APPLICATION_JSON)))
                     .body(body)
                     .retrieve()
                     .body(ViewStats.class);
