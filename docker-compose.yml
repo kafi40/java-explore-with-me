@@ -1,21 +1,10 @@
 services:
-  stats-gateway:
-    build: stat/stat-gateway
-    image: stats-gateway
-    container_name: stats-gateway
-    ports:
-      - "9090:9090"
-    depends_on:
-      - stats-server
-    environment:
-      - STATS_SERVER_URL=http://server:9191
-
   stats-server:
     build: stat/stat-server
     image: stats-server
     container_name: stats-server
     ports:
-      - "9191:9191"
+      - "9090:9090"
     depends_on:
       - stats-db
     environment:

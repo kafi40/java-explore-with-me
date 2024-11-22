@@ -1,7 +1,10 @@
 package ru.practicum.stateserver.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.statcommon.dto.EndpointHitDtoReq;
 import ru.practicum.statcommon.dto.ViewStats;
@@ -12,13 +15,14 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 public class EndpointHitController {
     private final EndpointHitService endpointHitService;
 
     @GetMapping("/stats")
     public List<ViewStats> getStats(
-            @RequestParam String start,
-            @RequestParam String end,
+            @RequestParam @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$") String start,
+            @RequestParam @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$") String end,
             @RequestParam(required = false) List<String> uris,
             @RequestParam(required = false, defaultValue = "false") Boolean unique
     ) {
@@ -35,7 +39,7 @@ public class EndpointHitController {
     }
 
     @PostMapping("/hit")
-    public ViewStats postHit(@RequestBody EndpointHitDtoReq request) {
+    public ViewStats postHit(@Valid @RequestBody EndpointHitDtoReq request) {
         log.info("Server stat (controller): Create EndpointHit={}", request);
         return endpointHitService.createHits(request);
     }

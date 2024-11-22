@@ -1,4 +1,4 @@
-package ru.practicum.statgateway.exception;
+package ru.practicum.stateserver.exception;
 
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
