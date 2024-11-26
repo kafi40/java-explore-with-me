@@ -20,9 +20,13 @@ import java.util.Map;
 @Service
 @Slf4j
 public class EndpointHitClientImpl implements EndpointHitClient {
-    @Value("${stats-server.url}")
-    private String serverUrl;
-    private final RestClient restClient = RestClient.create(serverUrl);
+    private final String serverUrl;
+    private final RestClient restClient;
+
+    public EndpointHitClientImpl(@Value("${stats-server.url}") String serverUrl, RestClient restClient) {
+        this.serverUrl = serverUrl;
+        this.restClient = restClient;
+    }
 
     @Override
     public List<ViewStats> get(HttpServletRequest request, Map<String, String> params, @Nullable List<String> uris) {

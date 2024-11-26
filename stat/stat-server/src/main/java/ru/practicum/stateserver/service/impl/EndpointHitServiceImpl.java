@@ -16,6 +16,9 @@ import ru.practicum.stateserver.service.mapper.EndpointHitMapper;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @Service
@@ -24,6 +27,7 @@ import java.util.List;
 public class EndpointHitServiceImpl implements EndpointHitService {
     private final EndpointHitRepository endpointHitRepository;
     private final EndpointHitMapper endpointHitMapper;
+    private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
     public List<ViewStats> getStats(String start, String end) {
@@ -87,8 +91,7 @@ public class EndpointHitServiceImpl implements EndpointHitService {
         log.info("Server stat (service): Finished createHits()");
         return endpointHitMapper.toDto(endpointHit);
     }
-
-    private Timestamp toTimestamp(String dateTime) {
-        return Timestamp.valueOf(URLDecoder.decode(dateTime, StandardCharsets.UTF_8));
+    private Timestamp toTimestamp(String dateTime) throws DateTimeParseException {
+            return Timestamp.valueOf(LocalDateTime.parse(URLDecoder.decode(dateTime, StandardCharsets.UTF_8), dtf));
     }
 }

@@ -9,9 +9,12 @@ import ru.practicum.stateserver.repository.model.NativeEndpointHit;
 import ru.practicum.stateserver.repository.model.ShortEndpointHit;
 import ru.practicum.stateserver.service.entity.EndpointHit;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
@@ -31,7 +34,12 @@ public interface EndpointHitMapper {
     @Mapping(target = "createdAt", source = "timestamp", dateFormat = "yyyy-MM-dd HH:mm:ss")
     EndpointHit toEntity(EndpointHitDtoReq endpointHitDtoReq);
 
-    default Timestamp toTimestamp(String createAt) {
-        return Timestamp.valueOf(LocalDateTime.parse(createAt, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+    default Timestamp toTimestamp(String createAt) throws DateTimeParseException {
+        return Timestamp.valueOf(
+                LocalDateTime.parse(
+                        URLDecoder.decode(createAt, StandardCharsets.UTF_8),
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                )
+        );
     }
 }
