@@ -91,6 +91,7 @@ public class EndpointHitServiceImpl implements EndpointHitService {
         log.info("Server stat (service): Finished createHits()");
         return endpointHitMapper.toDto(endpointHit);
     }
+
     private Timestamp toTimestamp(String dateTime) throws DateTimeParseException {
             return Timestamp.valueOf(LocalDateTime.parse(URLDecoder.decode(dateTime, StandardCharsets.UTF_8), dtf));
     }
