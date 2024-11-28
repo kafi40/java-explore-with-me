@@ -18,6 +18,7 @@
     <modules>
         <module>main-server</module>
         <module>main-gateway</module>
+        <module>main-common</module>
     </modules>
 
 </project>
