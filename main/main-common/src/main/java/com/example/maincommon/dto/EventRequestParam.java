@@ -5,12 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
 public class EventRequestParam {
     private String text;
-    private List<Integer> categories;
+    private Set<Long> categories;
     private boolean paid;
     private String rangeStart;
     private String rangeEnd;

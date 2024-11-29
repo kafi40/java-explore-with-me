@@ -46,17 +46,18 @@ public class UserController {
             @RequestParam(required = false, defaultValue = "10") int size
     ) {
         log.info("Server main (controller): Get user with param ids={}, from={}, size={}", ids, from, size);
-        return null;
+        return userService.getAll(from, size);
     }
 
     @PostMapping("/admin/users")
     public UserDto create(@RequestBody NewUserRequest newUser) {
         log.info("Server main (controller): Create user {}", newUser);
-        return null;
+        return userService.create(newUser);
     }
 
     @DeleteMapping("/admin/users/{userId}")
     public void delete(@PathVariable Long userId) {
         log.info("Server main (controller): Delete user {}", userId);
+        userService.delete(userId);
     }
 }

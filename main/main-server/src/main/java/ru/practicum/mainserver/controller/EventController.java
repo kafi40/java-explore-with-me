@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.mainserver.service.EventService;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,7 +21,7 @@ public class EventController {
     @GetMapping("/events")
     public List<EventShortDto> getAll(
             @RequestParam(required = false) String text,
-            @RequestParam(required = false) List<Integer> categories,
+            @RequestParam(required = false) Set<Long> categories,
             @RequestParam(required = false, defaultValue = "false") boolean paid,
             @RequestParam(required = false) String rangeStart,
             @RequestParam(required = false) String rangeEnd,
@@ -44,13 +45,13 @@ public class EventController {
                 .from(from)
                 .size(size)
                 .build();
-        return null;
+        return eventService.getAll(requestParam);
     }
 
     @GetMapping("/events/{eventId}")
     public EventFullDto get(@PathVariable Long eventId) {
         log.info("Server main (controller): Get events with param eventId={}", eventId);
-        return null;
+        return eventService.get(eventId);
     }
 
     @GetMapping("users/{userId}/events")
@@ -60,35 +61,36 @@ public class EventController {
             @RequestParam(required = false, defaultValue = "10") int size
             ) {
         log.info("Server main (controller): Get user's events with userId={}, from={}, size={}", userId, from, size);
-        return null;
+        return eventService.getUserEvents(userId, from, size);
     }
 
-    @PostMapping("users/{userId}/events")
-    public EventFullDto createUserEvents(@PathVariable Long userId, @RequestBody NewEventDto newEvent) {
-        log.info("Server main (controller): Create event {} by user={}", newEvent, userId);
-        return null;
-    }
 
     @GetMapping("/users/{userId}/events/{eventId}")
     public EventFullDto getUserEvent(@PathVariable Long userId, @PathVariable Long eventId) {
         log.info("Server main (controller): Get user's event with userId={}, eventId={}", userId, eventId);
-        return null;
+        return eventService.getUserEvent(userId, eventId);
+    }
+
+    @PostMapping("users/{userId}/events")
+    public EventFullDto create(@PathVariable Long userId, @RequestBody NewEventDto newEvent) {
+        log.info("Server main (controller): Create event {} by user={}", newEvent, userId);
+        return eventService.create(userId, newEvent);
     }
 
     @PatchMapping("/users/{userId}/events/{eventId}")
-    public EventFullDto updateUserEvent(
+    public EventFullDto update(
             @PathVariable Long userId,
             @PathVariable Long eventId,
             @RequestBody UpdateEventUserRequest updateEvent
     ) {
         log.info("Server main (controller): Update user's event with userId={}, eventId={}, body={} ", userId, eventId, updateEvent);
-        return null;
+        return eventService.update(userId, eventId, updateEvent);
     }
 
     @GetMapping("/users/{userId}/events/{eventId}/requests")
     public List<ParticipationRequestDto> getUserEventRequests(@PathVariable Long userId, @PathVariable Long eventId) {
         log.info("Server main (controller): Get requests for user's event with userId={}, eventId={}", userId, eventId);
-        return null;
+        return eventService.getUserEventRequests(userId, eventId);
     }
 
     @PatchMapping("/users/{userId}/events/{eventId}/requests")
@@ -98,14 +100,14 @@ public class EventController {
             @RequestBody EventRequestStatusUpdateRequest request
             ) {
         log.info("Server main (controller): Update request for user's event with userId={}, eventId={}, body={} ", userId, eventId, request);
-        return null;
+        return eventService.updateUserEventRequests(userId, eventId, request);
     }
 
     @GetMapping("/admin/events")
     public List<EventFullDto> getAllForAdmin(
             @RequestParam(required = false) List<Integer> users,
             @RequestParam(required = false) List<State> states,
-            @RequestParam(required = false) List<Integer> categories,
+            @RequestParam(required = false) Set<Long> categories,
             @RequestParam(required = false) String rangeStart,
             @RequestParam(required = false) String rangeEnd,
             @RequestParam(required = false, defaultValue = "0") int from,
@@ -124,12 +126,12 @@ public class EventController {
                 .from(from)
                 .size(size)
                 .build();
-        return null;
+        return eventService.getAllForAdmin(requestParam);
     }
 
     @PatchMapping("/admin/events/{eventId}")
-    public EventFullDto update(@PathVariable Long eventId, @RequestBody UpdateEventUserRequest updateEvent) {
+    public EventFullDto updateForAdmin(@PathVariable Long eventId, @RequestBody UpdateEventUserRequest updateEvent) {
         log.info("Server main (controller): Update eventId={} with body {}", eventId, updateEvent);
-        return null;
+        return eventService.updateForAdmin(eventId, updateEvent);
     }
 }

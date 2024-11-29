@@ -19,31 +19,31 @@ public class CategoryController {
     public List<CategoryDto> getAll(
             @RequestParam(required = false, defaultValue = "0") int from,
             @RequestParam(required = false, defaultValue = "10") int size) {
-        log.info("Server main (controller): Get events with param from={}, size={}", from, size);
+        log.info("Server main (CategoryController): Get events with param from={}, size={}", from, size);
         return categoryService.getAll(from, size);
     }
 
     @GetMapping("/categories/{categoryId}")
     public CategoryDto get(@PathVariable Long categoryId) {
-        log.info("Server main (controller): Get events with categoryId={}", categoryId);
+        log.info("Server main (CategoryController): Get events with categoryId={}", categoryId);
         return categoryService.get(categoryId);
     }
 
     @PostMapping("/admin/categories")
     public CategoryDto create(@RequestBody NewCategoryDto newCategory) {
-        log.info("Server main (controller): Create new category {}", newCategory);
+        log.info("Server main (CategoryController): Create new category {}", newCategory);
         return categoryService.create(newCategory);
     }
 
     @PatchMapping("/admin/categories/{categoryId}")
     public CategoryDto update(@PathVariable Long categoryId, @RequestBody CategoryDto updatedCategory) {
-        log.info("Server main (controller): Update category with id={}, body={}", categoryId, updatedCategory);
+        log.info("Server main (CategoryController): Update category with id={}, body={}", categoryId, updatedCategory);
         return categoryService.update(updatedCategory);
     }
 
     @DeleteMapping("/admin/categories/{categoryId}")
     public void delete(@PathVariable Long categoryId) {
-        log.info("Server main (controller): Delete category {}", categoryId);
+        log.info("Server main (CategoryController): Delete category {}", categoryId);
         categoryService.delete(categoryId);
     }
 }
