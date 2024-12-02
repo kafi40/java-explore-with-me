@@ -1,6 +1,7 @@
 package ru.practicum.statgateway.client;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.stereotype.Service;
 import ru.practicum.statcommon.dto.EndpointHitDtoReq;
 import ru.practicum.statcommon.dto.ViewStats;
 
