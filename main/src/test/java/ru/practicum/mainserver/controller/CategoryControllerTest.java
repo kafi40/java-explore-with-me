@@ -56,7 +56,7 @@ public class CategoryControllerTest {
     void testGetAllForWithParamFrom0With10() throws Exception {
         int from = 0;
         int size = 10;
-        when(categoryService.getAll(from, size)).thenReturn(ModelFactory.CreateCategoryDtoList(size));
+        when(categoryService.getAll(from, size)).thenReturn(ModelFactory.createCategoryDtoList(size));
         mockMvc.perform(get("/categories")
                         .param("from", String.valueOf(from))
                         .param("size", String.valueOf(size))
