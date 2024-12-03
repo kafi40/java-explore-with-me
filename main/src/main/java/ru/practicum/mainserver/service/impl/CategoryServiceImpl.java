@@ -38,7 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
     public List<CategoryDto> getAll(int from, int size) {
         log.info("Server main (CategoryService): Try getAll()");
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
-        return categoryRepository.findMany(page).stream()
+        return categoryRepository.findAll(page).stream()
                 .map(categoryMapper::toDto)
                 .toList();
     }

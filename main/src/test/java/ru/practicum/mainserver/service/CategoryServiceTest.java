@@ -49,7 +49,7 @@ public class CategoryServiceTest {
     @Test
     @Rollback
     void testGetAll() {
-        for (int i = 1; i < 11 ; i++) {
+        for (int i = 1; i < 11; i++) {
             NewCategoryDto newCategoryDto = new NewCategoryDto();
             newCategoryDto.setName("Test Category " + i);
             categoryService.create(newCategoryDto);

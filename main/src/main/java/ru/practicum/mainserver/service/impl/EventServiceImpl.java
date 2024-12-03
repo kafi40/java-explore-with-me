@@ -187,7 +187,8 @@ public class EventServiceImpl implements EventService {
         log.info("Server main (EventService): Try createParticipation()");
         participationRepository.findByRequester_IdAndEvent_Id(userId, eventId)
                 .ifPresent(value -> {
-                    throw new ParticipationRegisterException("Server main (EventService): Вы уже зарегистрированы");});
+                    throw new ParticipationRegisterException("Server main (EventService): Вы уже зарегистрированы");
+                });
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFountException(
                         "Server main (EventService): Not found event with id: " + eventId));
@@ -272,11 +273,11 @@ public class EventServiceImpl implements EventService {
 
         if (updateEvent.getStateAction() != null) {
             if (isAdmin) {
-                if(updateEvent.getStateAction().equals(StateAction.PUBLISH_EVENT) && event.getState().equals(State.PUBLISHED))
+                if (updateEvent.getStateAction().equals(StateAction.PUBLISH_EVENT) && event.getState().equals(State.PUBLISHED))
                     throw new EventPublishException("Server main (EventService): Событие уже опубликовано");
-                if(updateEvent.getStateAction().equals(StateAction.PUBLISH_EVENT) && event.getState().equals(State.CANCELED))
+                if (updateEvent.getStateAction().equals(StateAction.PUBLISH_EVENT) && event.getState().equals(State.CANCELED))
                     throw new EventPublishException("Server main (EventService): Нельзя опубликовать отмененное событие");
-                if(updateEvent.getStateAction().equals(StateAction.REJECT_EVENT) && event.getState().equals(State.PUBLISHED))
+                if (updateEvent.getStateAction().equals(StateAction.REJECT_EVENT) && event.getState().equals(State.PUBLISHED))
                     throw new EventPublishException("Server main (EventService): Нельзя отменить опубликованное событие");
                 switch (updateEvent.getStateAction()) {
                     case REJECT_EVENT -> event.setState(State.CANCELED);
@@ -347,7 +348,7 @@ public class EventServiceImpl implements EventService {
             queryParams.and(qEvent.eventDate.before(Timestamp.valueOf(params.getRangeEnd())));
         if (!params.isAdmin() && params.isOnlyAvailable())
             queryParams.andNot(qEvent.confirmedRequests.eq(QEvent.event.participantLimit));
-        if(!params.isAdmin() && params.getPaid() != null)
+        if (!params.isAdmin() && params.getPaid() != null)
             queryParams.and(qEvent.paid.eq(params.getPaid()));
         return queryParams;
     }

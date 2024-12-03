@@ -15,7 +15,7 @@ public class ModelFactory {
         return categoryDto;
     }
 
-    public static List<CategoryDto> CreateCategoryDtoList(int size) {
+    public static List<CategoryDto> createCategoryDtoList(int size) {
         List<CategoryDto> list = new ArrayList<>();
         for (int i = 1; i < size + 1; i++) {
             CategoryDto categoryDto = new CategoryDto();

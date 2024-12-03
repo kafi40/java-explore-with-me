@@ -2,7 +2,6 @@ package ru.practicum.mainserver.service.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import ru.practicum.mainserver.service.enums.Role;
 
 @Data
 @Entity

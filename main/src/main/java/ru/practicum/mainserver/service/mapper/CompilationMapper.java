@@ -12,6 +12,7 @@ import ru.practicum.mainserver.service.entity.Compilation;
 public interface CompilationMapper {
     @Mapping(target = "events", ignore = true)
     Compilation toEntity(NewCompilationDto newCompilation);
+
     @Mapping(target = "events", ignore = true)
     Compilation toEntity(UpdateCompilationRequest updateCompilation);
 
