@@ -3,6 +3,7 @@ package ru.practicum.stateserver.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.statcommon.dto.EndpointHitDtoReq;
@@ -38,6 +39,7 @@ public class EndpointHitController {
     }
 
     @PostMapping("/hit")
+    @ResponseStatus(HttpStatus.CREATED)
     public ViewStats postHit(@Valid @RequestBody EndpointHitDtoReq request) {
         log.info("Server stat (controller): Create EndpointHit={}", request);
         return endpointHitService.createHits(request);
