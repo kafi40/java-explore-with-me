@@ -3,13 +3,14 @@ package ru.practicum.mainserver.service;
 import ru.practicum.mainserver.utils.EventRequestParam;
 import ru.practicum.mainserver.dto.event.*;
 import ru.practicum.mainserver.dto.participation.ParticipationRequestDto;
+import ru.practicum.statcommon.dto.EndpointHitDtoReq;
 
 import java.util.List;
 
 public interface EventService {
-    List<EventShortDto> getAll(EventRequestParam params);
+    List<EventShortDto> getAll(EventRequestParam params, EndpointHitDtoReq endpointHit);
 
-    EventFullDto get(Long eventId);
+    EventFullDto get(Long eventId, EndpointHitDtoReq endpointHit);
 
     List<EventShortDto> getUserEvents(Long userId, int from, int size);
 

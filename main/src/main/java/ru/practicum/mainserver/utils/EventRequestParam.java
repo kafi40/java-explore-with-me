@@ -13,7 +13,7 @@ import java.util.Set;
 public class EventRequestParam {
     private String text;
     private Set<Long> categories;
-    private boolean paid;
+    private Boolean paid;
     private String rangeStart;
     private String rangeEnd;
     private boolean onlyAvailable;

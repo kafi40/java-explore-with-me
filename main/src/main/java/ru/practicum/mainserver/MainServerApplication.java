@@ -3,7 +3,7 @@ package ru.practicum.mainserver;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"ru.practicum.statgateway", "ru.practicum.mainserver"})
 public class MainServerApplication {
 
     public static void main(String[] args) {

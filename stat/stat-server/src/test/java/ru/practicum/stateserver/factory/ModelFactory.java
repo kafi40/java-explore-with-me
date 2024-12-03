@@ -14,7 +14,7 @@ public class ModelFactory {
     }
 
     public static EndpointHitDtoReq createEndpointHitDtoReq() {
-        EndpointHitDtoReq req = new EndpointHitDtoReq();
+        EndpointHitDtoReq req = EndpointHitDtoReq.builder().build();
         req.setApp(MAIN_SERVER);
         req.setUri("http://localhost:9090/stats");
         req.setIp("192.168.1.1");

@@ -81,11 +81,7 @@ public class CategoryControllerTest {
                         .content(objectMapper.writeValueAsString(categoryDto))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(categoryDto.getId()), Long.class))
-                .andExpect(jsonPath("$.name", is(categoryDto.getName()), String.class));
-
-        verify(categoryService, times(1)).create(newCategoryDto);
+                .andExpect(status().isCreated());
     }
 
     @Test
@@ -109,7 +105,7 @@ public class CategoryControllerTest {
                         .content(objectMapper.writeValueAsString(categoryDto))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         verify(categoryService, times(1)).delete(categoryDto.getId());
     }

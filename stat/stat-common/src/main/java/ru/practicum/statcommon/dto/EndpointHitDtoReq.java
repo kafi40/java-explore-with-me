@@ -2,9 +2,11 @@ package ru.practicum.statcommon.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class EndpointHitDtoReq {
     @Size(max = 50, message = "Превышена длина названия приложения")
     @NotBlank(message = "Должно быть название приложения")

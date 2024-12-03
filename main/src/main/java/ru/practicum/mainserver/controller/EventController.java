@@ -1,5 +1,6 @@
 package ru.practicum.mainserver.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import ru.practicum.mainserver.utils.EventRequestParam;
 import ru.practicum.mainserver.enums.State;
 import ru.practicum.mainserver.annotation.PositiveList;
@@ -14,7 +15,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.mainserver.service.EventService;
+import ru.practicum.statcommon.dto.EndpointHitDtoReq;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 
@@ -24,19 +28,20 @@ import java.util.Set;
 @Validated
 public class EventController {
     private final EventService eventService;
+    private final DateTimeFormatter dtf =DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @GetMapping("/events")
     public List<EventShortDto> getAll(
             @RequestParam(required = false) String text,
             @PositiveList @RequestParam(required = false) Set<Long> categories,
-            @RequestParam(required = false, defaultValue = "false") boolean paid,
+            @RequestParam(required = false) Boolean paid,
             @RequestParam(required = false) String rangeStart,
             @RequestParam(required = false) String rangeEnd,
             @RequestParam(required = false, defaultValue = "false") boolean onlyAvailable,
             @RequestParam(required = false, defaultValue = "EVENT_DATE") String sort,
             @PositiveOrZero @RequestParam(required = false, defaultValue = "0") int from,
-            @Positive @RequestParam(required = false, defaultValue = "10") int size
-
+            @Positive @RequestParam(required = false, defaultValue = "10") int size,
+            HttpServletRequest servletRequest
     ) {
         log.info("Server main (EventController): Get events with param text={}, categories={}, paid={}, rangeStart={}, " +
                         "rangeEnd={}, onlyAvailable={}, sort={}, from={}, size={}",
@@ -53,13 +58,25 @@ public class EventController {
                 .size(size)
                 .isAdmin(false)
                 .build();
-        return eventService.getAll(requestParam);
+        EndpointHitDtoReq endpointHit = EndpointHitDtoReq.builder()
+                .app("main-service")
+                .uri(servletRequest.getRequestURI())
+                .ip(servletRequest.getRemoteAddr())
+                .timestamp(LocalDateTime.now().format(dtf))
+                .build();
+        return eventService.getAll(requestParam, endpointHit);
     }
 
     @GetMapping("/events/{eventId}")
-    public EventFullDto get(@PositiveOrZero @PathVariable Long eventId) {
+    public EventFullDto get(@PositiveOrZero @PathVariable Long eventId, HttpServletRequest servletRequest) {
         log.info("Server main (EventController): Get events with param eventId={}", eventId);
-        return eventService.get(eventId);
+        EndpointHitDtoReq endpointHit = EndpointHitDtoReq.builder()
+                .app("main-service")
+                .uri(servletRequest.getRequestURI())
+                .ip(servletRequest.getRemoteAddr())
+                .timestamp(LocalDateTime.now().format(dtf))
+                .build();
+        return eventService.get(eventId, endpointHit);
     }
 
     @GetMapping("users/{userId}/events")

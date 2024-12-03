@@ -15,6 +15,9 @@ public class PositiveListValidator implements ConstraintValidator<PositiveList, 
 
     @Override
     public boolean isValid(Collection<Long> longs, ConstraintValidatorContext constraintValidatorContext) {
+        if (longs == null) {
+            return true;
+        }
         return longs.stream().noneMatch(l -> l < 1);
     }
 }

@@ -46,4 +46,6 @@ public class Event {
     @JoinColumn(name = "location_id")
     @ManyToOne(cascade = CascadeType.ALL)
     private Location location;
+    @Column(name = "views")
+    private Integer views;
 }

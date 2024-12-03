@@ -1,6 +1,6 @@
 package ru.practicum.mainserver.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.querydsl.QSort;
 import ru.practicum.mainserver.utils.EventRequestParam;
 import ru.practicum.mainserver.enums.State;
 import ru.practicum.mainserver.enums.StateAction;
@@ -21,6 +21,8 @@ import ru.practicum.mainserver.service.entity.*;
 import ru.practicum.mainserver.service.mapper.EventMapper;
 import ru.practicum.mainserver.service.mapper.LocationMapper;
 import ru.practicum.mainserver.service.mapper.ParticipationMapper;
+import ru.practicum.statcommon.dto.EndpointHitDtoReq;
+import ru.practicum.statcommon.dto.ViewStats;
 import ru.practicum.statgateway.client.EndpointHitClient;
 
 
@@ -28,7 +30,9 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -42,29 +46,43 @@ public class EventServiceImpl implements EventService {
     private final EventMapper eventMapper;
     private final LocationMapper locationMapper;
     private final ParticipationMapper participationMapper;
-//    private final EndpointHitClient endpointHitClient;
+    private final EndpointHitClient endpointHitClient;
 
     @Override
     @Transactional(readOnly = true)
-    public List<EventShortDto> getAll(EventRequestParam params) {
+    public List<EventShortDto> getAll(EventRequestParam params, EndpointHitDtoReq endpointHit) {
         log.info("Server main (EventService): Try getAll()");
-        PageRequest page = PageRequest.of(
-                params.getFrom() > 0 ? params.getFrom() / params.getSize() : 0, params.getSize()
-        );
+        PageRequest page;
+        if (params.getSort().equals("VIEWS")) {
+            page = PageRequest.of(params.getFrom(), params.getSize(), new QSort(QEvent.event.views.desc()));
+        } else {
+            page = PageRequest.of(params.getFrom(), params.getSize(), new QSort(QEvent.event.eventDate.desc()));
+        }
         BooleanBuilder queryParams = getSQLQuery(params);
         List<Event> events = eventRepository.findAll(queryParams, page).getContent();
+        for (Event event : events) {
+            endpointHit.setUri(endpointHit.getUri() + "/" + event.getId());
+            endpointHitClient.create(endpointHit);
+        }
         return events.stream()
                 .map(eventMapper::toShortDto)
                 .toList();
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public EventFullDto get(Long eventId) {
+    public EventFullDto get(Long eventId, EndpointHitDtoReq endpointHit) {
         log.info("Server main (EventService): Try get()");
         return eventRepository.findById(eventId)
                 .map(event -> {
                     if (event.getState().equals(State.PUBLISHED)) {
+                            endpointHitClient.create(endpointHit);
+                            Map<String, String> reqParam = new HashMap<>();
+                            reqParam.put("start", fromTimestamp(event.getCreatedOn()));
+                            reqParam.put("end", fromTimestamp(event.getEventDate()));
+                            reqParam.put("unique", "true");
+                            List<ViewStats> stats = endpointHitClient.get(reqParam, List.of(endpointHit.getUri()));
+                            event.setViews(stats == null ? event.getViews() : stats.getFirst().hits());
+                            event = eventRepository.save(event);
                         return eventMapper.toDto(event);
                     } else {
                         throw new NotFountException("Server main (EventService): Not found event with id: " + eventId);
@@ -77,8 +95,8 @@ public class EventServiceImpl implements EventService {
     @Transactional(readOnly = true)
     public List<EventShortDto> getUserEvents(Long userId, int from, int size) {
         log.info("Server main (EventService): Try getUserEvents()");
-        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
-        return eventRepository.findMany(page).stream()
+        PageRequest page = PageRequest.of(from, size);
+        return eventRepository.findAll(page).stream()
                 .map(eventMapper::toShortDto)
                 .toList();
     }
@@ -114,6 +132,7 @@ public class EventServiceImpl implements EventService {
         event.setRequestModeration(newEvent.getRequestModeration() != null ? newEvent.getRequestModeration() : true);
         event.setPaid(newEvent.getPaid() != null ? newEvent.getPaid() : false);
         event.setConfirmedRequests(0);
+        event.setViews(0);
         event = eventRepository.save(event);
         return eventMapper.toDto(event);
     }
@@ -139,7 +158,7 @@ public class EventServiceImpl implements EventService {
     @Transactional(readOnly = true)
     public List<EventFullDto> getAllForAdmin(EventRequestParam params) {
         log.info("Server main (EventService): Try getAllForAdmin()");
-        PageRequest page = PageRequest.of(params.getFrom() > 0 ? params.getFrom() / params.getSize() : 0, params.getSize());
+        PageRequest page = PageRequest.of(params.getFrom(), params.getSize());
         BooleanBuilder queryParams = getSQLQuery(params);
         List<Event> events = eventRepository.findAll(queryParams, page).getContent();
         return events.stream()
@@ -316,9 +335,9 @@ public class EventServiceImpl implements EventService {
             queryParams.and(qEvent.state.in(params.getStates()));
         if (!params.isAdmin())
             queryParams.and(qEvent.state.eq(State.PUBLISHED));
-        if (!params.isAdmin() && params.getUsers() != null && !params.getUsers().isEmpty())
+        if (params.isAdmin() && params.getUsers() != null && !params.getUsers().isEmpty())
             queryParams.and(qEvent.initiator.id.in(params.getUsers()));
-        if (params.getText() != null && !params.getText().isEmpty())
+        if (!params.isAdmin() && params.getText() != null && !params.getText().isEmpty())
             queryParams.and(qEvent.annotation.contains(params.getText())).or(qEvent.description.contains(params.getText()));
         if (params.getCategories() != null && !params.getCategories().isEmpty())
             queryParams.and(qEvent.category.id.in(params.getCategories()));
@@ -326,9 +345,10 @@ public class EventServiceImpl implements EventService {
             queryParams.and(qEvent.eventDate.after(Timestamp.valueOf(params.getRangeStart())));
         if (params.getRangeEnd() != null)
             queryParams.and(qEvent.eventDate.before(Timestamp.valueOf(params.getRangeEnd())));
-        if (params.isOnlyAvailable())
+        if (!params.isAdmin() && params.isOnlyAvailable())
             queryParams.andNot(qEvent.confirmedRequests.eq(QEvent.event.participantLimit));
-        queryParams.and(qEvent.paid.eq(params.isPaid()));
+        if(!params.isAdmin() && params.getPaid() != null)
+            queryParams.and(qEvent.paid.eq(params.getPaid()));
         return queryParams;
     }
 
@@ -341,4 +361,9 @@ public class EventServiceImpl implements EventService {
             throw new TimeTooEarlyException("Server main (EventService): Время события должно быть не ранее чем за два часа");
         }
     }
+
+    private String fromTimestamp(Timestamp timestamp) {
+        return timestamp.toLocalDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    }
 }
+

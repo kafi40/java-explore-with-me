@@ -18,5 +18,9 @@ public class Compilation {
     @Column(name = "title", nullable = false, length = 50)
     private String title;
     @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "compilations_events",
+            joinColumns = @JoinColumn(name = "compilation_id"),
+            inverseJoinColumns = @JoinColumn(name = "event_id"))
     private Set<Event> events;
 }
