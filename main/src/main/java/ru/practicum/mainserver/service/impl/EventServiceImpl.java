@@ -49,7 +49,6 @@ public class EventServiceImpl implements EventService {
     private final EndpointHitClient endpointHitClient;
 
     @Override
-    @Transactional(readOnly = true)
     public List<EventShortDto> getAll(EventRequestParam params, EndpointHitDtoReq endpointHit) {
         log.info("Server main (EventService): Try getAll()");
         PageRequest page;
@@ -59,11 +58,8 @@ public class EventServiceImpl implements EventService {
             page = PageRequest.of(params.getFrom(), params.getSize(), new QSort(QEvent.event.eventDate.desc()));
         }
         BooleanBuilder queryParams = getSQLQuery(params);
+        endpointHitClient.create(endpointHit);
         List<Event> events = eventRepository.findAll(queryParams, page).getContent();
-        for (Event event : events) {
-            endpointHit.setUri(endpointHit.getUri() + "/" + event.getId());
-            endpointHitClient.create(endpointHit);
-        }
         return events.stream()
                 .map(eventMapper::toShortDto)
                 .toList();

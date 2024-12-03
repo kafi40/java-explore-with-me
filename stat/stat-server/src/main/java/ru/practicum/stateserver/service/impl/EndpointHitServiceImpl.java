@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.statcommon.dto.EndpointHitDtoReq;
 import ru.practicum.statcommon.dto.ViewStats;
+import ru.practicum.stateserver.exception.DateTimeRangeException;
 import ru.practicum.stateserver.repository.EndpointHitRepository;
 import ru.practicum.stateserver.repository.model.NativeEndpointHit;
 import ru.practicum.stateserver.repository.model.ShortEndpointHit;
@@ -32,7 +33,7 @@ public class EndpointHitServiceImpl implements EndpointHitService {
     @Override
     public List<ViewStats> getStats(String start, String end) {
         log.info("Server stat (service): Try getStats()");
-
+        dateTimeRangeValidator(start, end);
         List<ShortEndpointHit> endpointHits = endpointHitRepository.findAllByCreatedAtBetween(
                 toTimestamp(start),
                 toTimestamp(end)
@@ -45,6 +46,7 @@ public class EndpointHitServiceImpl implements EndpointHitService {
     @Override
     public List<ViewStats> getStatsByUris(String start, String end, List<String> uris) {
         log.info("Server stat (service): Try getStatsByUris()");
+        dateTimeRangeValidator(start, end);
         List<ShortEndpointHit> endpointHits = endpointHitRepository.findAllByCreatedAtBetweenAndUriInIgnoreCase(
                         toTimestamp(start),
                         toTimestamp(end),
@@ -57,6 +59,7 @@ public class EndpointHitServiceImpl implements EndpointHitService {
 
     @Override
     public List<ViewStats> getStatsUnique(String start, String end) {
+        dateTimeRangeValidator(start, end);
         log.info("Server stat (service): Try getStatsUnique()");
         List<NativeEndpointHit> endpointHits = endpointHitRepository.findAllByCreatedAtBetweenAndUniqueIp(
                 toTimestamp(start),
@@ -69,6 +72,7 @@ public class EndpointHitServiceImpl implements EndpointHitService {
 
     @Override
     public List<ViewStats> getStatsUniqueByUris(String start, String end, List<String> uris) {
+        dateTimeRangeValidator(start, end);
         log.info("Server stat (service): Try getStatsUniqueByUris()");
         List<NativeEndpointHit> endpointHits = endpointHitRepository.findAllByCreatedAtBetweenAndUriInAndUniqueIp(
                 toTimestamp(start),
@@ -94,5 +98,11 @@ public class EndpointHitServiceImpl implements EndpointHitService {
 
     private Timestamp toTimestamp(String dateTime) throws DateTimeParseException {
             return Timestamp.valueOf(LocalDateTime.parse(URLDecoder.decode(dateTime, StandardCharsets.UTF_8), dtf));
+    }
+
+    private void dateTimeRangeValidator(String start, String end) {
+        if (LocalDateTime.parse(start, dtf).isAfter(LocalDateTime.parse(end, dtf))) {
+            throw new DateTimeRangeException("Server stat (service): Начало не может быть после конца");
+        }
     }
 }
