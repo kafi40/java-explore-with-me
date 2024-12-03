@@ -19,7 +19,7 @@ public class Participation {
     @JoinColumn(name = "event_id", nullable = false)
     @ManyToOne
     private Event event;
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "requester_id", nullable = false)
     @ManyToOne
     private User requester;
     @Enumerated(EnumType.STRING)
