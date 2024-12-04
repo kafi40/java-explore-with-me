@@ -21,6 +21,7 @@ public class CompilationController {
     private final CompilationService compilationService;
 
     @GetMapping("/compilations")
+    @ResponseStatus(HttpStatus.OK)
     public List<CompilationDto> getAll(
             @RequestParam(required = false, defaultValue = "false") boolean pinned,
             @PositiveOrZero @RequestParam(required = false, defaultValue = "0") int from,
@@ -31,6 +32,7 @@ public class CompilationController {
     }
 
     @GetMapping("/compilations/{compId}")
+    @ResponseStatus(HttpStatus.OK)
     public CompilationDto get(@Positive @PathVariable Long compId) {
         log.info("Server main (CompilationController): Get compilation with ID={}", compId);
         return compilationService.get(compId);
@@ -44,6 +46,7 @@ public class CompilationController {
     }
 
     @PatchMapping("/admin/compilations/{compId}")
+    @ResponseStatus(HttpStatus.OK)
     public CompilationDto update(
             @Positive @PathVariable Long compId,
             @Valid @RequestBody UpdateCompilationRequest updateCompilation) {

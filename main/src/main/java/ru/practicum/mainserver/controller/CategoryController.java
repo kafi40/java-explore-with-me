@@ -22,6 +22,7 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping("/categories")
+    @ResponseStatus(HttpStatus.OK)
     public List<CategoryDto> getAll(
             @PositiveOrZero @RequestParam(required = false, defaultValue = "0") int from,
             @Positive @RequestParam(required = false, defaultValue = "10") int size) {
@@ -30,6 +31,7 @@ public class CategoryController {
     }
 
     @GetMapping("/categories/{categoryId}")
+    @ResponseStatus(HttpStatus.OK)
     public CategoryDto get(@Positive @PathVariable Long categoryId) {
         log.info("Server main (CategoryController): Get events with categoryId={}", categoryId);
         return categoryService.get(categoryId);
@@ -43,6 +45,7 @@ public class CategoryController {
     }
 
     @PatchMapping("/admin/categories/{categoryId}")
+    @ResponseStatus(HttpStatus.OK)
     public CategoryDto update(
             @Positive @PathVariable Long categoryId,
             @Valid @RequestBody CategoryDto updatedCategory) {

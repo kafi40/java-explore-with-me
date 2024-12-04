@@ -31,6 +31,7 @@ public class EventController {
     private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @GetMapping("/events")
+    @ResponseStatus(HttpStatus.OK)
     public List<EventShortDto> getAll(
             @RequestParam(required = false) String text,
             @PositiveList @RequestParam(required = false) Set<Long> categories,
@@ -68,6 +69,7 @@ public class EventController {
     }
 
     @GetMapping("/events/{eventId}")
+    @ResponseStatus(HttpStatus.OK)
     public EventFullDto get(@PositiveOrZero @PathVariable Long eventId, HttpServletRequest servletRequest) {
         log.info("Server main (EventController): Get events with param eventId={}", eventId);
         EndpointHitDtoReq endpointHit = EndpointHitDtoReq.builder()
@@ -80,6 +82,7 @@ public class EventController {
     }
 
     @GetMapping("users/{userId}/events")
+    @ResponseStatus(HttpStatus.OK)
     public List<EventShortDto> getUserEvents(
             @Positive @PathVariable Long userId,
             @PositiveOrZero @RequestParam(required = false, defaultValue = "0") int from,
@@ -91,6 +94,7 @@ public class EventController {
 
 
     @GetMapping("/users/{userId}/events/{eventId}")
+    @ResponseStatus(HttpStatus.OK)
     public EventFullDto getUserEvent(@Positive @PathVariable Long userId, @Positive @PathVariable Long eventId) {
         log.info("Server main (EventController): Get user's event with userId={}, eventId={}", userId, eventId);
         return eventService.getUserEvent(userId, eventId);
@@ -104,6 +108,7 @@ public class EventController {
     }
 
     @PatchMapping("/users/{userId}/events/{eventId}")
+    @ResponseStatus(HttpStatus.OK)
     public EventFullDto update(
             @Positive @PathVariable Long userId,
             @Positive @PathVariable Long eventId,
@@ -114,6 +119,7 @@ public class EventController {
     }
 
     @GetMapping("/users/{userId}/events/{eventId}/requests")
+    @ResponseStatus(HttpStatus.OK)
     public List<ParticipationRequestDto> getUserEventRequests(
             @Positive @PathVariable Long userId,
             @Positive @PathVariable Long eventId) {
@@ -122,6 +128,7 @@ public class EventController {
     }
 
     @PatchMapping("/users/{userId}/events/{eventId}/requests")
+    @ResponseStatus(HttpStatus.OK)
     public EventRequestStatusUpdateResult updateUserEventRequests(
             @Positive @PathVariable Long userId,
             @Positive @PathVariable Long eventId,
@@ -132,6 +139,7 @@ public class EventController {
     }
 
     @GetMapping("/admin/events")
+    @ResponseStatus(HttpStatus.OK)
     public List<EventFullDto> getAllForAdmin(
             @PositiveList @RequestParam(required = false) List<Long> users,
             @RequestParam(required = false) List<State> states,
@@ -159,6 +167,7 @@ public class EventController {
     }
 
     @PatchMapping("/admin/events/{eventId}")
+    @ResponseStatus(HttpStatus.OK)
     public EventFullDto updateForAdmin(
             @Positive @PathVariable Long eventId,
             @Valid @RequestBody UpdateEvent updateEvent) {
@@ -167,6 +176,7 @@ public class EventController {
     }
 
     @GetMapping("/users/{userId}/requests")
+    @ResponseStatus(HttpStatus.OK)
     public List<ParticipationRequestDto> getAllParticipation(@Positive @PathVariable Long userId) {
         log.info("Server main (EventController): Get participation for user {}", userId);
         return eventService.getAllParticipation(userId);
@@ -183,6 +193,7 @@ public class EventController {
     }
 
     @PatchMapping("/users/{userId}/requests/{requestsId}/cancel")
+    @ResponseStatus(HttpStatus.OK)
     public ParticipationRequestDto cancelParticipation(
             @Positive @PathVariable Long userId,
             @Positive @PathVariable Long requestsId

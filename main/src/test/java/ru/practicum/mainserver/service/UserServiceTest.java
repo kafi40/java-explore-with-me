@@ -39,7 +39,7 @@ public class UserServiceTest {
             newUserRequest.setName("user" + i);
             newUserRequest.setEmail(newUserRequest.getName() + "@example.com");
             result = userService.create(newUserRequest);
-            userIds.add(result.id());
+            userIds.add(result.getId());
         }
         List<UserDto> resultList = userService.getAll(List.of(userIds.getFirst()), 0, 5);
         TypedQuery<User> query = em.createQuery("SELECT u FROM User u WHERE u.id IN :ids", User.class);
@@ -75,13 +75,13 @@ public class UserServiceTest {
         NewUserRequest newUserRequest = ModelFactory.createNewUserRequest();
         result = userService.create(newUserRequest);
         TypedQuery<User> query = em.createQuery("SELECT u FROM User u WHERE u.id = :id", User.class);
-        User user = query.setParameter("id", result.id())
+        User user = query.setParameter("id", result.getId())
                 .getSingleResult();
         assertThat(user.getId(), notNullValue());
-        assertThat(user.getName(), equalTo(result.name()));
-        assertThat(user.getEmail(), equalTo(result.email()));
+        assertThat(user.getName(), equalTo(result.getName()));
+        assertThat(user.getEmail(), equalTo(result.getEmail()));
 
-        newUserRequest.setEmail(result.email());
+        newUserRequest.setEmail(result.getEmail());
         Assertions.assertThrows(DataIntegrityViolationException.class, () -> userService.create(newUserRequest));
     }
 
@@ -90,10 +90,10 @@ public class UserServiceTest {
     void testDelete() {
         NewUserRequest newUserRequest = ModelFactory.createNewUserRequest();
         result = userService.create(newUserRequest);
-        userService.delete(result.id());
+        userService.delete(result.getId());
         TypedQuery<User> query = em.createQuery("SELECT u FROM User u WHERE u.id = :id", User.class);
 
-        Assertions.assertThrows(NoResultException.class, () -> query.setParameter("id", result.id())
+        Assertions.assertThrows(NoResultException.class, () -> query.setParameter("id", result.getId())
                 .getSingleResult());
     }
 }

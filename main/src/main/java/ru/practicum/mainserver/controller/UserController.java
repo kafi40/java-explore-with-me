@@ -20,6 +20,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/admin/users")
+    @ResponseStatus(HttpStatus.OK)
     public List<UserDto> getAll(
             @RequestParam(required = false) List<Long> ids,
             @PositiveOrZero @RequestParam(required = false, defaultValue = "0") int from,

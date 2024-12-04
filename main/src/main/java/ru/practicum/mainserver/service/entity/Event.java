@@ -1,5 +1,6 @@
 package ru.practicum.mainserver.service.entity;
 
+import lombok.NoArgsConstructor;
 import ru.practicum.mainserver.enums.State;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -9,6 +10,7 @@ import java.sql.Timestamp;
 @Data
 @Entity
 @Table(name = "events")
+@NoArgsConstructor
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,7 +46,7 @@ public class Event {
     @ManyToOne(fetch = FetchType.LAZY)
     private Category category;
     @JoinColumn(name = "location_id")
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Location location;
     @Column(name = "views")
     private Integer views;
