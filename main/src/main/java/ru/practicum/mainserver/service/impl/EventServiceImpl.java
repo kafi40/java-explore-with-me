@@ -244,7 +244,10 @@ public class EventServiceImpl implements EventService {
         participationRepository.saveAll(participation);
         event.setConfirmedRequests(currentCount);
         eventRepository.save(event);
-        return new EventRequestStatusUpdateResult(confirmedRequests, rejectedRequests);
+        EventRequestStatusUpdateResult result = new EventRequestStatusUpdateResult();
+        result.setConfirmedRequests(confirmedRequests);
+        result.setRejectedRequests(rejectedRequests);
+        return result;
     }
 
     @Override
