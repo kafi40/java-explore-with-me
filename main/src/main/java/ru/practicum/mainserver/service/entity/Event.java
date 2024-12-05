@@ -40,13 +40,13 @@ public class Event {
     @Column(name = "state", nullable = false)
     private State state;
     @JoinColumn(name = "initiator_id", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private User initiator;
     @JoinColumn(name = "category_id", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Category category;
     @JoinColumn(name = "location_id")
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.ALL)
     private Location location;
     @Column(name = "views")
     private Integer views;

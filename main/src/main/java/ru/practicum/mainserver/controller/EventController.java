@@ -201,4 +201,37 @@ public class EventController {
         log.info("Server main (EventController): Cancel participation with ID={} for user with ID={}", requestsId, userId);
         return eventService.cancelParticipation(userId, requestsId);
     }
+
+    @PostMapping("/users/{userId}/events/{eventId}/comments")
+    @ResponseStatus(HttpStatus.CREATED)
+    public CommentDto createComments(
+            @Positive @PathVariable Long userId,
+            @Positive @PathVariable Long eventId,
+            @Valid @RequestBody NewOrUpdateCommentDto newComment
+    ) {
+        log.info("Server main (EventController): Create comments={} with user={}, event={}", newComment, userId, eventId);
+        return eventService.createComment(userId, eventId, newComment);
+    }
+
+    @PatchMapping("/users/{userId}/comments/{commentId}")
+    @ResponseStatus(HttpStatus.OK)
+    public CommentDto updateComment(
+            @Positive @PathVariable Long userId,
+            @Positive @PathVariable Long commentId,
+            @Valid @RequestBody NewOrUpdateCommentDto newComment
+    ) {
+        log.info("Server main (EventController): Update comments={} with ID={} by user={}, ", newComment, commentId, userId);
+        return eventService.updateComment(userId, commentId, newComment);
+    }
+
+    @DeleteMapping("/users/{userId}/comments/{commentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteComment(
+            @Positive @PathVariable Long userId,
+            @Positive @PathVariable Long commentId
+    ) {
+        log.info("Server main (EventController): Delete comment with ID={} by user={}, ", commentId, userId);
+        eventService.deleteComment(userId, commentId);
+    }
+
 }

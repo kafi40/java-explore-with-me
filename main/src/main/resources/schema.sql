@@ -49,6 +49,7 @@ CREATE TABLE IF NOT EXISTS compilations_events(
     event_id BIGINT NOT NULL,
     PRIMARY KEY (compilation_id, event_id)
 );
+
 CREATE TABLE IF NOT EXISTS participations (
     id SERIAL NOT NULL UNIQUE,
     event_id BIGINT NOT NULL,
@@ -58,7 +59,14 @@ CREATE TABLE IF NOT EXISTS participations (
     PRIMARY KEY ("id")
 );
 
-
+CREATE TABLE IF NOT EXISTS comments (
+    id SERIAL NOT NULL UNIQUE,
+    event_id BIGINT NOT NULL,
+    author_id BIGINT NOT NULL,
+    text VARCHAR(1000) NOT NULL,
+    created_on TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    is_modified BOOLEAN NOT NULL
+);
 
 ALTER TABLE events ADD CONSTRAINT "events_fk1" FOREIGN KEY (category_id) REFERENCES categories(id);
 
@@ -73,3 +81,7 @@ ALTER TABLE compilations_events ADD CONSTRAINT "compilations_events_fk1" FOREIGN
 ALTER TABLE participations ADD CONSTRAINT "participations_fk1" FOREIGN KEY (event_id) REFERENCES events(id);
 
 ALTER TABLE participations ADD CONSTRAINT "participations_fk2" FOREIGN KEY (requester_id) REFERENCES users(id);
+
+ALTER TABLE comments ADD CONSTRAINT "comments_fk1" FOREIGN KEY (event_id) REFERENCES events(id);
+
+ALTER TABLE comments ADD CONSTRAINT "comments_fk2" FOREIGN KEY (author_id) REFERENCES users(id);
