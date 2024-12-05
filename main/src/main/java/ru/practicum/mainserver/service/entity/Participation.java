@@ -19,10 +19,10 @@ public class Participation {
     @Column(name = "created", nullable = false)
     private Timestamp created;
     @JoinColumn(name = "event_id", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Event event;
     @JoinColumn(name = "requester_id", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private User requester;
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)

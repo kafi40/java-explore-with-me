@@ -1,9 +1,6 @@
 package ru.practicum.mainserver.service.mapper;
 
-import ru.practicum.mainserver.dto.event.EventFullDto;
-import ru.practicum.mainserver.dto.event.EventShortDto;
-import ru.practicum.mainserver.dto.event.NewEventDto;
-import ru.practicum.mainserver.dto.event.UpdateEvent;
+import ru.practicum.mainserver.dto.event.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -33,6 +30,11 @@ public interface EventMapper {
     @Mapping(target = "createdOn", source = "createdOn", dateFormat = "yyyy-MM-dd HH:mm:ss")
     @Mapping(target = "publishedOn", source = "publishedOn", dateFormat = "yyyy-MM-dd HH:mm:ss")
     EventFullDto toDto(Event event);
+
+    @Mapping(target = "eventDate", source = "eventDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(target = "createdOn", source = "createdOn", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(target = "publishedOn", source = "publishedOn", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    EventDtoWithComments toDtoWithComments(Event event);
 
     default Timestamp toTimestamp(String dateTime) throws DateTimeParseException {
         return Timestamp.valueOf(

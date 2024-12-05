@@ -1,6 +1,7 @@
 package ru.practicum.mainserver.service.impl;
 
 import org.springframework.data.querydsl.QSort;
+import ru.practicum.mainserver.service.mapper.CommentMapper;
 import ru.practicum.mainserver.utils.EventRequestParam;
 import ru.practicum.mainserver.enums.State;
 import ru.practicum.mainserver.enums.StateAction;
@@ -43,9 +44,11 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final ParticipationRepository participationRepository;
+    private final CommentRepository commentRepository;
     private final EventMapper eventMapper;
     private final LocationMapper locationMapper;
     private final ParticipationMapper participationMapper;
+    private final CommentMapper commentMapper;
     private final EndpointHitClient endpointHitClient;
 
     @Override
@@ -66,7 +69,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullDto get(Long eventId, EndpointHitDtoReq endpointHit) {
+    public EventDtoWithComments get(Long eventId, EndpointHitDtoReq endpointHit) {
         log.info("Server main (EventService): Try get()");
         return eventRepository.findById(eventId)
                 .map(event -> {
@@ -79,7 +82,8 @@ public class EventServiceImpl implements EventService {
                             List<ViewStats> stats = endpointHitClient.get(reqParam, List.of(endpointHit.getUri()));
                             event.setViews(stats == null ? event.getViews() : stats.getFirst().hits());
                             event = eventRepository.save(event);
-                        return eventMapper.toDto(event);
+                            EventDtoWithComments eventWithComments = setComments(event);
+                        return eventWithComments;
                     } else {
                         throw new NotFountException("Server main (EventService): Not found event with id: " + eventId);
                     }
@@ -99,10 +103,10 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional(readOnly = true)
-    public EventFullDto getUserEvent(Long userId, Long eventId) {
+    public EventDtoWithComments getUserEvent(Long userId, Long eventId) {
         log.info("Server main (EventService): Try getUserEvent()");
         return eventRepository.findById(eventId)
-                .map(eventMapper::toDto)
+                .map(this::setComments)
                 .orElseThrow(() -> new NotFountException("Server main (EventService): Not found event with id: " + eventId));
     }
 
@@ -263,6 +267,49 @@ public class EventServiceImpl implements EventService {
         return participationMapper.toDto(participation);
     }
 
+    @Override
+    public CommentDto createComment(Long userId, Long eventId, NewOrUpdateCommentDto newComment) {
+        log.info("Server main (EventService): Try createComment()");
+        User author = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFountException(
+                        "Server main (EventService): Not found user with id: " + userId));
+        Event event = eventRepository.findById(eventId)
+                .map(e -> {
+                    if (e.getState().equals(State.PUBLISHED)) return e;
+                    throw new NotFountException("Server main (EventService): Not found event with id: " + eventId);
+                })
+                .orElseThrow(() -> new NotFountException(
+                        "Server main (EventService): Not found event with id: " + eventId));
+        Comment comment = commentMapper.toEntity(newComment);
+        comment.setAuthor(author);
+        comment.setEvent(event);
+        comment.setCreatedOn(Timestamp.valueOf(LocalDateTime.now()));
+        comment.setIsModified(false);
+        comment = commentRepository.save(comment);
+        return commentMapper.toDto(comment);
+    }
+
+    @Override
+    public CommentDto updateComment(Long userId, Long commentId, NewOrUpdateCommentDto updateComment) {
+        log.info("Server main (EventService): Try updateComment()");
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFountException(
+                        "Server main (EventService): Not found comment with id: " + commentId));
+        if (!comment.getAuthor().getId().equals(userId)) {
+            throw new NotPermissionException("Server main (EventService): Недостаточно прав для редактирования комментария");
+        }
+        comment.setText(updateComment.getText());
+        comment.setIsModified(true);
+        comment = commentRepository.save(comment);
+        return commentMapper.toDto(comment);
+    }
+
+    @Override
+    public void deleteComment(Long userId, Long commentId) {
+        log.info("Server main (EventService): Try deleteComment()");
+        commentRepository.deleteByIdAndAuthor_Id(commentId, userId);
+    }
+
     private Event getUpdate(Long eventId, UpdateEvent updateEvent, Boolean isAdmin) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFountException("Server main (EventService): Not found event with id: " + eventId));
@@ -364,6 +411,13 @@ public class EventServiceImpl implements EventService {
 
     private String fromTimestamp(Timestamp timestamp) {
         return timestamp.toLocalDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    }
+
+    private EventDtoWithComments setComments(Event event) {
+        EventDtoWithComments eventWithComment = eventMapper.toDtoWithComments(event);
+        List<CommentDto> commentsDto = commentMapper.toDtoList(commentRepository.findAllByEvent_Id(event.getId()));
+        eventWithComment.setComments(commentsDto);
+        return eventWithComment;
     }
 }
 

@@ -10,11 +10,11 @@ import java.util.List;
 public interface EventService {
     List<EventShortDto> getAll(EventRequestParam params, EndpointHitDtoReq endpointHit);
 
-    EventFullDto get(Long eventId, EndpointHitDtoReq endpointHit);
+    EventDtoWithComments get(Long eventId, EndpointHitDtoReq endpointHit);
 
     List<EventShortDto> getUserEvents(Long userId, int from, int size);
 
-    EventFullDto getUserEvent(Long userId, Long eventId);
+    EventDtoWithComments getUserEvent(Long userId, Long eventId);
 
     EventFullDto create(Long userId, NewEventDto newEvent);
 
@@ -33,4 +33,10 @@ public interface EventService {
     ParticipationRequestDto createParticipation(Long userId, Long eventId);
 
     ParticipationRequestDto cancelParticipation(Long userId, Long participationId);
+
+    CommentDto createComment(Long userId, Long eventId, NewOrUpdateCommentDto newComment);
+
+    CommentDto updateComment(Long userId, Long commentId, NewOrUpdateCommentDto updateComment);
+
+    void deleteComment(Long userId, Long commentId);
 }
