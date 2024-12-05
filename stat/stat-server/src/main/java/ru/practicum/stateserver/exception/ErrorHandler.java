@@ -22,4 +22,10 @@ public class ErrorHandler {
     public Map<String, String> dateTimeParseException(final DateTimeParseException e) {
         return Map.of("error:", e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> dateTimeRangeException(final DateTimeRangeException e) {
+        return Map.of("error:", e.getMessage());
+    }
 }

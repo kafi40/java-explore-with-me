@@ -1,12 +1,11 @@
 package ru.practicum.statgateway.client.impl;
 
 import jakarta.annotation.Nullable;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.practicum.statcommon.dto.EndpointHitDtoReq;
@@ -17,7 +16,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
-@Service
+@Component
 @Slf4j
 public class EndpointHitClientImpl implements EndpointHitClient {
     private final String serverUrl;
@@ -29,12 +28,12 @@ public class EndpointHitClientImpl implements EndpointHitClient {
     }
 
     @Override
-    public List<ViewStats> get(HttpServletRequest request, Map<String, String> params, @Nullable List<String> uris) {
-        log.info("Gateway stat (client): Try to make request by uri={}", request.getRequestURI());
+    public List<ViewStats> get(Map<String, String> params, @Nullable List<String> uris) {
+        log.info("Gateway stat (client): Try to make request");
 
         URI uri = UriComponentsBuilder
                 .fromUriString(serverUrl)
-                .path(request.getRequestURI())
+                .path("/stats")
                 .queryParam("start", params.get("start"))
                 .queryParam("end", params.get("end"))
                 .queryParam("unique", params.get("unique"))
@@ -54,14 +53,13 @@ public class EndpointHitClientImpl implements EndpointHitClient {
     }
 
     @Override
-    public ViewStats create(EndpointHitDtoReq body, HttpServletRequest request) {
-        log.info("Gateway stat (client): Try to make request by uri={} with body={}", request.getRequestURI(), body);
+    public ViewStats create(EndpointHitDtoReq body) {
+        log.info("Gateway stat (client): Try to make request with body={}", body);
 
         URI uri = UriComponentsBuilder.fromUriString(serverUrl)
-                .path(request.getRequestURI())
+                .path("/hit")
                 .build()
                 .toUri();
-
         try {
             return restClient.post()
                     .uri(uri)

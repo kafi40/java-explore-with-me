@@ -27,43 +27,31 @@ services:
       interval: 5s
       retries: 10
 
-  ewm-gateway:
-    build: main/main-gateway
-    image: ewm-gateway
-    container_name: ewm-gateway
+  main-service:
+    build: main
+    image: server
+    container_name: server
     ports:
       - "8080:8080"
     depends_on:
-      - ewm-service
+      - main-db
     environment:
-      - MAIN_SERVER_URL=http://server:8181
-
-  ewm-service:
-    build: main/main-server
-    image: ewm-service
-    container_name: ewm-service
-    ports:
-      - "8181:8181"
-    depends_on:
-      - ewm-db
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/main_db
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://main-db:5432/main
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
 
-
-  ewm-db:
+  main-db:
     image: postgres:16.1
     container_name: main-postgres
     ports:
-      - "6542:5433"
+      - "6542:5432"
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
-      - POSTGRES_DB=main_db
+      - POSTGRES_DB=main
     healthcheck:
       test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
       timeout: 5s
       interval: 5s
       retries: 10
-    command: -p 5433
+    command: -p 5432
